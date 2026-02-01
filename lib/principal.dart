@@ -1,7 +1,8 @@
-// ignore_for_file: deprecated_member_use, unused_import, use_key_in_widget_constructors, unused_element, no_leading_underscores_for_local_identifiers, curly_braces_in_flow_control_structures, unused_field
+// ignore_for_file: deprecated_member_use, unused_import, use_key_in_widget_constructors, unused_element, no_leading_underscores_for_local_identifiers, curly_braces_in_flow_control_structures, unused_field, prefer_final_fields
 
 import 'dart:async';
 import 'dart:math';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
@@ -29,22 +30,17 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   bool _loadingComplete = false;
 
   void _startLoadingAnimation() async {
-    // Paso 1: Escribir código (2.5s)
     await _loadingCodeController.forward();
 
-    // Paso 2: Pequeño delay
     await Future.delayed(const Duration(milliseconds: 400));
 
-    // Paso 3: Efecto glitch rápido
     for (int i = 0; i < 3; i++) {
       await _loadingGlitchController.forward();
       await _loadingGlitchController.reverse();
     }
 
-    // Paso 4: Fade out del código
     _loadingFadeController.forward();
 
-    // Paso 5: Mostrar portfolio con escala
     await Future.delayed(const Duration(milliseconds: 300));
     if (mounted) {
       setState(() {
@@ -126,10 +122,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   // ================= TYPEWRITER =================
   final List<String> _roles = [
-    "Full Stack Developer",
-    "Flutter Developer",
-    "UI Lover",
-    "App Builder",
+    "Desarrollador Full Stack",
+    "Especializado en Flutter y Dart",
+    "Desarrollador movil multiplataforma",
   ];
 
   int _currentRole = 0;
@@ -140,6 +135,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   bool _showCursor = true;
   bool _isDeleting = false;
+
+  // ================= FLOATING STATS =================
+  late AnimationController _floatController1;
+  late AnimationController _floatController2;
+  late AnimationController _floatController3;
+
+  late Animation<double> _floatAnimation1;
+  late Animation<double> _floatAnimation2;
+  late Animation<double> _floatAnimation3;
 
   // ========== MOVED FUNCTIONS BEGIN ==========
   void _startTyping() {
@@ -190,6 +194,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     });
   }
   // ========== MOVED FUNCTIONS END ==========
+
+  // ========== BOTONES PRINCIPALES ==========
+  bool _isHoveringPrimaryButton = false;
+  bool _isHoveringSecondaryButton = false;
+
+  // ========== ESTADISTICAS ==========
+  int _hoveredStatIndex = -1;
+
+  // ================= BLOQUE CODIGO =================
+  bool _codeFinished = false;
+  bool _isHoveringCode = false;
+  late AnimationController _codeScanController;
 
   @override
   void initState() {
@@ -257,11 +273,45 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           ..addListener(_updateCursorParticles)
           ..repeat();
 
+    // ================= FLOATING ANIMATIONS =================
+    _floatController1 = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    )..repeat(reverse: true);
+
+    _floatController2 = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2500),
+    )..repeat(reverse: true);
+
+    _floatController3 = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2200),
+    )..repeat(reverse: true);
+
+    _floatAnimation1 = Tween<double>(begin: 0, end: -10).animate(
+      CurvedAnimation(parent: _floatController1, curve: Curves.easeInOut),
+    );
+
+    _floatAnimation2 = Tween<double>(begin: 0, end: -8).animate(
+      CurvedAnimation(parent: _floatController2, curve: Curves.easeInOut),
+    );
+
+    _floatAnimation3 = Tween<double>(begin: 0, end: -12).animate(
+      CurvedAnimation(parent: _floatController3, curve: Curves.easeInOut),
+    );
+
     _startTyping();
     _cursorTimer = Timer.periodic(const Duration(milliseconds: 500), (_) {
       if (!mounted) return;
       setState(() => _showCursor = !_showCursor);
     });
+
+    // ================= BLOQUE CODIGO =================
+    _codeScanController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    );
   }
 
   @override
@@ -275,6 +325,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _controllerFondo.dispose();
     _controllerCursor.dispose();
     _textAnimationController.dispose();
+    _floatController1.dispose();
+    _floatController2.dispose();
+    _floatController3.dispose();
+    _codeScanController.dispose();
     super.dispose();
   }
 
@@ -796,7 +850,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
             const Spacer(),
 
-            // Icono de sonido
+            // Icono de sonido VER IDIOMA
             MouseRegion(
               onEnter: (event) {
                 if (mounted) {
@@ -990,89 +1044,1040 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                           // ============= CONTENIDO =============
                           IgnorePointer(
                             ignoring: false,
-                            child: Column(
-                              children: [
-                                _buildAppBar(),
-                                SizedBox(height: h(53)),
-                                Padding(
-                                  padding: EdgeInsets.symmetric(
-                                    horizontal: w(23),
-                                  ),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            "Hola 👋, yo soy",
-                                            style: GoogleFonts.poppins(
-                                              color: Colors.white,
-                                              fontSize: sp(10),
-                                              fontWeight: FontWeight.bold,
-                                              letterSpacing: 0.5,
-                                            ),
-                                          ),
-                                          Text(
-                                            "Nahuel Cappa",
-                                            style: GoogleFonts.poppins(
-                                              color: Color(0xFF00D9FF),
-                                              fontSize: sp(17),
-                                              fontWeight: FontWeight.bold,
-                                              letterSpacing: 0.5,
-                                            ),
-                                          ),
-                                          SizedBox(height: h(3)),
-                                          Row(
+                            child: Center(
+                              child: Column(
+                                children: [
+                                  _buildAppBar(),
+                                  SizedBox(height: h(53)),
+
+                                  Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: w(23),
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        // ===== HERO LEFT =====
+                                        Expanded(
+                                          flex: 5,
+                                          child: Column(
                                             crossAxisAlignment:
-                                                CrossAxisAlignment.baseline,
-                                            textBaseline:
-                                                TextBaseline.alphabetic,
+                                                CrossAxisAlignment.start,
                                             children: [
+                                              SizedBox(height: h(6)),
+
+                                              // Saludo pequeño
                                               Text(
-                                                _roles[_currentRole].substring(
-                                                  0,
-                                                  _visibleChars,
-                                                ),
-                                                style: GoogleFonts.firaCode(
+                                                "Hola 👋, soy",
+                                                style: GoogleFonts.poppins(
                                                   color: Colors.white
-                                                      .withOpacity(0.88),
-                                                  fontSize: sp(8),
-                                                  fontWeight: FontWeight.bold,
-                                                  letterSpacing: 0.3,
+                                                      .withOpacity(0.9),
+                                                  fontSize: sp(10),
+                                                  fontWeight: FontWeight.w600,
+                                                  letterSpacing: 0.5,
                                                 ),
                                               ),
-                                              AnimatedOpacity(
-                                                opacity: _showCursor ? 1 : 0,
-                                                duration: const Duration(
-                                                  milliseconds: 150,
-                                                ),
-                                                child: Text(
-                                                  "|",
-                                                  style: GoogleFonts.firaCode(
-                                                    color: Colors.white
-                                                        .withOpacity(0.88),
-                                                    fontSize: sp(8),
-                                                    fontWeight: FontWeight.bold,
-                                                    letterSpacing: 0.3,
+
+                                              SizedBox(height: h(5)),
+
+                                              // NOMBRE GRANDE con gradiente
+                                              ShaderMask(
+                                                blendMode: BlendMode.srcIn,
+                                                shaderCallback: (bounds) =>
+                                                    LinearGradient(
+                                                      begin:
+                                                          Alignment.topCenter,
+                                                      end: Alignment
+                                                          .bottomCenter,
+                                                      colors: [
+                                                        Colors.white,
+                                                        Colors.white,
+                                                        Color(0xFF00D9FF),
+                                                        Colors.lightBlue,
+                                                      ],
+                                                      stops: [
+                                                        0.0,
+                                                        0.45,
+                                                        0.55,
+                                                        1.0,
+                                                      ],
+                                                    ).createShader(bounds),
+                                                child: Padding(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                        bottom: 6,
+                                                      ),
+                                                  child: Text(
+                                                    "Nahuel Cappa",
+                                                    style: GoogleFonts.poppins(
+                                                      fontSize: sp(25),
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      height: 1.1,
+                                                      color: Colors
+                                                          .white, // importante
+                                                    ),
                                                   ),
                                                 ),
                                               ),
+
+                                              SizedBox(height: h(8)),
+
+                                              // Typewriter
+                                              Row(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.baseline,
+                                                textBaseline:
+                                                    TextBaseline.alphabetic,
+                                                children: [
+                                                  Text(
+                                                    _roles[_currentRole]
+                                                        .substring(
+                                                          0,
+                                                          _visibleChars,
+                                                        ),
+                                                    style: GoogleFonts.firaCode(
+                                                      color: Colors.white
+                                                          .withOpacity(0.88),
+                                                      fontSize: sp(8),
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      letterSpacing: 0.4,
+                                                    ),
+                                                  ),
+                                                  AnimatedOpacity(
+                                                    opacity: _showCursor
+                                                        ? 1
+                                                        : 0,
+                                                    duration: const Duration(
+                                                      milliseconds: 150,
+                                                    ),
+                                                    child: Text(
+                                                      "|",
+                                                      style:
+                                                          GoogleFonts.firaCode(
+                                                            color: Colors.white
+                                                                .withOpacity(
+                                                                  0.88,
+                                                                ),
+                                                            fontSize: sp(8),
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                          ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+
+                                              SizedBox(height: h(23)),
+
+                                              // Descripción corta
+                                              TweenAnimationBuilder<double>(
+                                                duration: const Duration(
+                                                  milliseconds: 800,
+                                                ),
+                                                tween: Tween(
+                                                  begin: 0.0,
+                                                  end: 1.0,
+                                                ),
+                                                builder: (context, value, child) {
+                                                  return Opacity(
+                                                    opacity: value,
+                                                    child: Transform.translate(
+                                                      offset: Offset(
+                                                        0,
+                                                        20 * (1 - value),
+                                                      ),
+                                                      child: SizedBox(
+                                                        width: w(200),
+                                                        child: Text(
+                                                          "Construyo experiencias digitales modernas enfocadas en performance, animaciones y detalle visual.",
+                                                          style:
+                                                              GoogleFonts.poppins(
+                                                                color: Colors
+                                                                    .white
+                                                                    .withOpacity(
+                                                                      0.65,
+                                                                    ),
+                                                                fontSize: sp(
+                                                                  5.5,
+                                                                ),
+                                                                height: 1.6,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  );
+                                                },
+                                              ),
+
+                                              SizedBox(height: h(23)),
+
+                                              // CTA buttons con iconos
+                                              Row(
+                                                children: [
+                                                  // Primary CTA
+                                                  MouseRegion(
+                                                    onEnter: (event) {
+                                                      if (mounted) {
+                                                        setState(() {
+                                                          _isHoveringPrimaryButton =
+                                                              true;
+                                                          isHoveredGlobal =
+                                                              true;
+                                                        });
+                                                      }
+                                                    },
+                                                    onExit: (event) {
+                                                      if (mounted) {
+                                                        setState(() {
+                                                          _isHoveringPrimaryButton =
+                                                              false;
+                                                          isHoveredGlobal =
+                                                              false;
+                                                        });
+                                                      }
+                                                    },
+                                                    child: GestureDetector(
+                                                      onTap: () {},
+                                                      child: AnimatedContainer(
+                                                        duration:
+                                                            const Duration(
+                                                              milliseconds: 250,
+                                                            ),
+                                                        curve:
+                                                            Curves.easeOutCubic,
+                                                        transform: Matrix4.identity()
+                                                          ..scale(
+                                                            _isHoveringPrimaryButton
+                                                                ? 1.05
+                                                                : 1.0,
+                                                          )
+                                                          ..translate(
+                                                            0.0,
+                                                            _isHoveringPrimaryButton
+                                                                ? -3.0
+                                                                : 0.0,
+                                                          ),
+                                                        padding:
+                                                            EdgeInsets.symmetric(
+                                                              horizontal: w(15),
+                                                              vertical: h(9),
+                                                            ),
+                                                        decoration: BoxDecoration(
+                                                          gradient: LinearGradient(
+                                                            colors:
+                                                                _isHoveringPrimaryButton
+                                                                ? [
+                                                                    const Color(
+                                                                      0xFF00FFF0,
+                                                                    ),
+                                                                    const Color(
+                                                                      0xFF00D9FF,
+                                                                    ),
+                                                                  ]
+                                                                : [
+                                                                    const Color(
+                                                                      0xFF00D9FF,
+                                                                    ),
+                                                                    Colors
+                                                                        .lightBlue,
+                                                                  ],
+                                                          ),
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                30,
+                                                              ),
+                                                          boxShadow: [
+                                                            BoxShadow(
+                                                              color:
+                                                                  const Color(
+                                                                    0xFF00D9FF,
+                                                                  ).withOpacity(
+                                                                    _isHoveringPrimaryButton
+                                                                        ? 0.7
+                                                                        : 0.5,
+                                                                  ),
+                                                              blurRadius:
+                                                                  _isHoveringPrimaryButton
+                                                                  ? 25
+                                                                  : 18,
+                                                              spreadRadius:
+                                                                  _isHoveringPrimaryButton
+                                                                  ? 3
+                                                                  : 0,
+                                                              offset: Offset(
+                                                                0,
+                                                                _isHoveringPrimaryButton
+                                                                    ? 8
+                                                                    : 6,
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        child: Row(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          children: [
+                                                            AnimatedRotation(
+                                                              turns:
+                                                                  _isHoveringPrimaryButton
+                                                                  ? 0.05
+                                                                  : 0,
+                                                              duration:
+                                                                  const Duration(
+                                                                    milliseconds:
+                                                                        250,
+                                                                  ),
+                                                              child: Icon(
+                                                                Icons
+                                                                    .rocket_launch,
+                                                                color: Colors
+                                                                    .white,
+                                                                size: sp(6),
+                                                              ),
+                                                            ),
+                                                            SizedBox(
+                                                              width: w(5),
+                                                            ),
+                                                            AnimatedDefaultTextStyle(
+                                                              duration:
+                                                                  const Duration(
+                                                                    milliseconds:
+                                                                        250,
+                                                                  ),
+                                                              style: GoogleFonts.poppins(
+                                                                color: Colors
+                                                                    .white,
+                                                                fontSize: sp(
+                                                                  5.5,
+                                                                ),
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                                letterSpacing:
+                                                                    _isHoveringPrimaryButton
+                                                                    ? 1.0
+                                                                    : 0.6,
+                                                              ),
+                                                              child: const Text(
+                                                                "Ver proyectos",
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+
+                                                  SizedBox(width: w(8)),
+
+                                                  // Secondary CTA
+                                                  MouseRegion(
+                                                    onEnter: (event) {
+                                                      if (mounted) {
+                                                        setState(() {
+                                                          _isHoveringSecondaryButton =
+                                                              true;
+                                                          isHoveredGlobal =
+                                                              true;
+                                                        });
+                                                      }
+                                                    },
+                                                    onExit: (event) {
+                                                      if (mounted) {
+                                                        setState(() {
+                                                          _isHoveringSecondaryButton =
+                                                              false;
+                                                          isHoveredGlobal =
+                                                              false;
+                                                        });
+                                                      }
+                                                    },
+                                                    child: GestureDetector(
+                                                      onTap: () {},
+                                                      child: AnimatedContainer(
+                                                        duration:
+                                                            const Duration(
+                                                              milliseconds: 250,
+                                                            ),
+                                                        curve:
+                                                            Curves.easeOutCubic,
+                                                        transform: Matrix4.identity()
+                                                          ..scale(
+                                                            _isHoveringSecondaryButton
+                                                                ? 1.05
+                                                                : 1.0,
+                                                          )
+                                                          ..translate(
+                                                            0.0,
+                                                            _isHoveringSecondaryButton
+                                                                ? -3.0
+                                                                : 0.0,
+                                                          ),
+                                                        padding:
+                                                            EdgeInsets.symmetric(
+                                                              horizontal: w(15),
+                                                              vertical: h(9),
+                                                            ),
+                                                        decoration: BoxDecoration(
+                                                          color:
+                                                              _isHoveringSecondaryButton
+                                                              ? const Color(
+                                                                  0xFF00D9FF,
+                                                                ).withOpacity(
+                                                                  0.1,
+                                                                )
+                                                              : Colors
+                                                                    .transparent,
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                30,
+                                                              ),
+                                                          border: Border.all(
+                                                            color: const Color(
+                                                              0xFF00D9FF,
+                                                            ),
+                                                            width:
+                                                                _isHoveringSecondaryButton
+                                                                ? 2.5
+                                                                : 2,
+                                                          ),
+                                                          boxShadow:
+                                                              _isHoveringSecondaryButton
+                                                              ? [
+                                                                  BoxShadow(
+                                                                    color: const Color(
+                                                                      0xFF00D9FF,
+                                                                    ).withOpacity(0.3),
+                                                                    blurRadius:
+                                                                        15,
+                                                                    offset:
+                                                                        const Offset(
+                                                                          0,
+                                                                          5,
+                                                                        ),
+                                                                  ),
+                                                                ]
+                                                              : [],
+                                                        ),
+                                                        child: Row(
+                                                          mainAxisSize:
+                                                              MainAxisSize.min,
+                                                          children: [
+                                                            AnimatedRotation(
+                                                              turns:
+                                                                  _isHoveringSecondaryButton
+                                                                  ? 0.05
+                                                                  : 0,
+                                                              duration:
+                                                                  const Duration(
+                                                                    milliseconds:
+                                                                        250,
+                                                                  ),
+                                                              child: Icon(
+                                                                Icons.download,
+                                                                color:
+                                                                    const Color(
+                                                                      0xFF00D9FF,
+                                                                    ),
+                                                                size: sp(6),
+                                                              ),
+                                                            ),
+                                                            SizedBox(
+                                                              width: w(5),
+                                                            ),
+                                                            AnimatedDefaultTextStyle(
+                                                              duration:
+                                                                  const Duration(
+                                                                    milliseconds:
+                                                                        250,
+                                                                  ),
+                                                              style: GoogleFonts.poppins(
+                                                                color:
+                                                                    const Color(
+                                                                      0xFF00D9FF,
+                                                                    ),
+                                                                fontSize: sp(
+                                                                  5.5,
+                                                                ),
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w600,
+                                                                letterSpacing:
+                                                                    _isHoveringSecondaryButton
+                                                                    ? 1.0
+                                                                    : 0.4,
+                                                              ),
+                                                              child: const Text(
+                                                                "Descargar CV",
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+
+                                              SizedBox(height: h(30)),
+
+                                              Row(
+                                                children: [
+                                                  // Stat 1
+                                                  AnimatedBuilder(
+                                                    animation: _floatAnimation1,
+                                                    builder: (context, child) {
+                                                      return Transform.translate(
+                                                        offset: Offset(
+                                                          0,
+                                                          _floatAnimation1
+                                                              .value,
+                                                        ),
+                                                        child: MouseRegion(
+                                                          onEnter: (event) {
+                                                            if (mounted) {
+                                                              setState(() {
+                                                                _hoveredStatIndex =
+                                                                    0;
+                                                              });
+                                                            }
+                                                          },
+                                                          onExit: (event) {
+                                                            if (mounted) {
+                                                              setState(() {
+                                                                _hoveredStatIndex =
+                                                                    -1;
+                                                              });
+                                                            }
+                                                          },
+                                                          child: AnimatedContainer(
+                                                            duration:
+                                                                const Duration(
+                                                                  milliseconds:
+                                                                      300,
+                                                                ),
+                                                            transform:
+                                                                Matrix4.identity()
+                                                                  ..scale(
+                                                                    _hoveredStatIndex ==
+                                                                            0
+                                                                        ? 1.1
+                                                                        : 1.0,
+                                                                  ),
+                                                            child: _buildStatWithHover(
+                                                              '3+',
+                                                              'Años Exp.',
+                                                              _hoveredStatIndex ==
+                                                                  0,
+                                                              w,
+                                                              sp,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                  SizedBox(width: w(25)),
+
+                                                  // Stat 2
+                                                  AnimatedBuilder(
+                                                    animation: _floatAnimation2,
+                                                    builder: (context, child) {
+                                                      return Transform.translate(
+                                                        offset: Offset(
+                                                          0,
+                                                          _floatAnimation2
+                                                              .value,
+                                                        ),
+                                                        child: MouseRegion(
+                                                          onEnter: (event) {
+                                                            if (mounted) {
+                                                              setState(() {
+                                                                _hoveredStatIndex =
+                                                                    1;
+                                                              });
+                                                            }
+                                                          },
+                                                          onExit: (event) {
+                                                            if (mounted) {
+                                                              setState(() {
+                                                                _hoveredStatIndex =
+                                                                    -1;
+                                                              });
+                                                            }
+                                                          },
+                                                          child: AnimatedContainer(
+                                                            duration:
+                                                                const Duration(
+                                                                  milliseconds:
+                                                                      300,
+                                                                ),
+                                                            transform:
+                                                                Matrix4.identity()
+                                                                  ..scale(
+                                                                    _hoveredStatIndex ==
+                                                                            1
+                                                                        ? 1.1
+                                                                        : 1.0,
+                                                                  ),
+                                                            child: _buildStatWithHover(
+                                                              '10+',
+                                                              'Proyectos',
+                                                              _hoveredStatIndex ==
+                                                                  1,
+                                                              w,
+                                                              sp,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                  SizedBox(width: w(25)),
+
+                                                  // Stat 3
+                                                  AnimatedBuilder(
+                                                    animation: _floatAnimation3,
+                                                    builder: (context, child) {
+                                                      return Transform.translate(
+                                                        offset: Offset(
+                                                          0,
+                                                          _floatAnimation3
+                                                              .value,
+                                                        ),
+                                                        child: MouseRegion(
+                                                          onEnter: (event) {
+                                                            if (mounted) {
+                                                              setState(() {
+                                                                _hoveredStatIndex =
+                                                                    2;
+                                                              });
+                                                            }
+                                                          },
+                                                          onExit: (event) {
+                                                            if (mounted) {
+                                                              setState(() {
+                                                                _hoveredStatIndex =
+                                                                    -1;
+                                                              });
+                                                            }
+                                                          },
+                                                          child: AnimatedContainer(
+                                                            duration:
+                                                                const Duration(
+                                                                  milliseconds:
+                                                                      300,
+                                                                ),
+                                                            transform:
+                                                                Matrix4.identity()
+                                                                  ..scale(
+                                                                    _hoveredStatIndex ==
+                                                                            2
+                                                                        ? 1.1
+                                                                        : 1.0,
+                                                                  ),
+                                                            child: _buildStatWithHover(
+                                                              '∞',
+                                                              'Cafés ☕',
+                                                              _hoveredStatIndex ==
+                                                                  2,
+                                                              w,
+                                                              sp,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      );
+                                                    },
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(height: h(30)),
+
+                                              // Social network buttons (circular)
+                                              AnimatedContainer(
+                                                duration: const Duration(
+                                                  milliseconds: 300,
+                                                ),
+                                                padding: EdgeInsets.symmetric(
+                                                  horizontal: w(8),
+                                                  vertical: h(5),
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: Colors.white
+                                                      .withOpacity(0.04),
+                                                  borderRadius:
+                                                      BorderRadius.circular(40),
+                                                  border: Border.all(
+                                                    color: Colors.white
+                                                        .withOpacity(0.08),
+                                                    width: 1,
+                                                  ),
+                                                ),
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    _buildSocialButton(
+                                                      icon:
+                                                          LucideIcons.linkedin,
+                                                      tooltip: 'LinkedIn',
+                                                      onTap: () {},
+                                                      w: w,
+                                                      sp: sp,
+                                                      index: 0,
+                                                    ),
+                                                    SizedBox(width: w(4)),
+                                                    // Divider
+                                                    Container(
+                                                      width: 1,
+                                                      height: h(12),
+                                                      color: Colors.white
+                                                          .withOpacity(0.1),
+                                                    ),
+                                                    SizedBox(width: w(4)),
+                                                    _buildSocialButton(
+                                                      icon: LucideIcons.github,
+                                                      tooltip: 'GitHub',
+                                                      onTap: () {},
+                                                      w: w,
+                                                      sp: sp,
+                                                      index: 1,
+                                                    ),
+                                                    SizedBox(width: w(4)),
+                                                    Container(
+                                                      width: 1,
+                                                      height: h(12),
+                                                      color: Colors.white
+                                                          .withOpacity(0.1),
+                                                    ),
+                                                    SizedBox(width: w(4)),
+                                                    _buildSocialButton(
+                                                      icon: LucideIcons.globe,
+                                                      tooltip: 'Portfolio',
+                                                      onTap: () {},
+                                                      w: w,
+                                                      sp: sp,
+                                                      index: 2,
+                                                    ),
+                                                    SizedBox(width: w(4)),
+                                                    Container(
+                                                      width: 1,
+                                                      height: h(12),
+                                                      color: Colors.white
+                                                          .withOpacity(0.1),
+                                                    ),
+                                                    SizedBox(width: w(4)),
+                                                    _buildSocialButton(
+                                                      icon: Icons.work_outline,
+                                                      tooltip: 'Fiverr',
+                                                      onTap: () {},
+                                                      w: w,
+                                                      sp: sp,
+                                                      index: 3,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+
+                                              SizedBox(height: h(30)),
                                             ],
                                           ),
-                                        ],
-                                      ),
+                                        ),
 
-                                      Spacer(),
+                                        SizedBox(width: w(20)),
 
-                                      //Bloque Codigo
-                                      const AnimatedCodeEditor(),
-                                    ],
+                                        // ===== HERO RIGHT =====
+                                        Expanded(
+                                          flex: 4,
+                                          child: MouseRegion(
+                                            onEnter: (_) {
+                                              setState(
+                                                () => _isHoveringCode = true,
+                                              );
+                                              _codeScanController.forward(
+                                                from: 0,
+                                              );
+                                            },
+                                            onExit: (_) {
+                                              setState(
+                                                () => _isHoveringCode = false,
+                                              );
+                                            },
+                                            child: Stack(
+                                              children: [
+                                                AnimatedCodeEditor(
+                                                  onTypingFinished: () {
+                                                    setState(() {
+                                                      _codeFinished = true;
+                                                    });
+                                                  },
+                                                  onEditingStarted: () {
+                                                    setState(() {
+                                                      _codeFinished =
+                                                          false; // 👈 CLAVE
+                                                    });
+                                                  },
+                                                ),
+
+                                                if (_isHoveringCode &&
+                                                    !_codeFinished)
+                                                  Positioned(
+                                                    bottom: 14,
+                                                    left: 14,
+                                                    child: TweenAnimationBuilder<double>(
+                                                      duration: const Duration(
+                                                        milliseconds: 1300,
+                                                      ),
+                                                      tween: Tween(
+                                                        begin: 0.0,
+                                                        end: 1.0,
+                                                      ),
+                                                      builder: (context, value, _) {
+                                                        final isRunning =
+                                                            value < 0.55;
+
+                                                        return Opacity(
+                                                          opacity: value,
+                                                          child: Container(
+                                                            padding:
+                                                                const EdgeInsets.symmetric(
+                                                                  horizontal:
+                                                                      12,
+                                                                  vertical: 6,
+                                                                ),
+                                                            decoration: BoxDecoration(
+                                                              color: Colors
+                                                                  .black
+                                                                  .withOpacity(
+                                                                    0.65,
+                                                                  ),
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    8,
+                                                                  ),
+                                                              border: Border.all(
+                                                                color: isRunning
+                                                                    ? const Color(
+                                                                        0xFF00D9FF,
+                                                                      )
+                                                                    : Colors
+                                                                          .red,
+                                                              ),
+                                                              boxShadow: [
+                                                                BoxShadow(
+                                                                  color:
+                                                                      (isRunning
+                                                                              ? const Color(
+                                                                                  0xFF00D9FF,
+                                                                                )
+                                                                              : Colors.red)
+                                                                          .withOpacity(
+                                                                            0.4,
+                                                                          ),
+                                                                  blurRadius:
+                                                                      14,
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            child: Text(
+                                                              isRunning
+                                                                  ? "Running..."
+                                                                  : "Build failed",
+                                                              style: GoogleFonts.firaCode(
+                                                                fontSize: 11,
+                                                                color: isRunning
+                                                                    ? const Color(
+                                                                        0xFF00D9FF,
+                                                                      )
+                                                                    : Colors
+                                                                          .red,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+
+                                                if (_isHoveringCode &&
+                                                    _codeFinished)
+                                                  Positioned(
+                                                    bottom: 14,
+                                                    left: 14,
+                                                    child: TweenAnimationBuilder<double>(
+                                                      duration: const Duration(
+                                                        milliseconds: 1300,
+                                                      ),
+                                                      tween: Tween(
+                                                        begin: 0.0,
+                                                        end: 1.0,
+                                                      ),
+                                                      builder: (context, value, _) {
+                                                        final isRunning =
+                                                            value < 0.55;
+
+                                                        return Opacity(
+                                                          opacity: value,
+                                                          child: Container(
+                                                            padding:
+                                                                const EdgeInsets.symmetric(
+                                                                  horizontal:
+                                                                      12,
+                                                                  vertical: 6,
+                                                                ),
+                                                            decoration: BoxDecoration(
+                                                              color: Colors
+                                                                  .black
+                                                                  .withOpacity(
+                                                                    0.65,
+                                                                  ),
+                                                              borderRadius:
+                                                                  BorderRadius.circular(
+                                                                    8,
+                                                                  ),
+                                                              border: Border.all(
+                                                                color: isRunning
+                                                                    ? const Color(
+                                                                        0xFF00D9FF,
+                                                                      )
+                                                                    : const Color(
+                                                                        0xFF00FF9C,
+                                                                      ),
+                                                              ),
+                                                              boxShadow: [
+                                                                BoxShadow(
+                                                                  color:
+                                                                      (isRunning
+                                                                              ? const Color(
+                                                                                  0xFF00D9FF,
+                                                                                )
+                                                                              : const Color(
+                                                                                  0xFF00FF9C,
+                                                                                ))
+                                                                          .withOpacity(
+                                                                            0.4,
+                                                                          ),
+                                                                  blurRadius:
+                                                                      14,
+                                                                ),
+                                                              ],
+                                                            ),
+                                                            child: Text(
+                                                              isRunning
+                                                                  ? "Running..."
+                                                                  : "Build completed",
+                                                              style: GoogleFonts.firaCode(
+                                                                fontSize: 11,
+                                                                color: isRunning
+                                                                    ? const Color(
+                                                                        0xFF00D9FF,
+                                                                      )
+                                                                    : const Color(
+                                                                        0xFF00FF9C,
+                                                                      ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+
+                                                if (_isHoveringCode &&
+                                                    _codeFinished)
+                                                  Positioned(
+                                                    bottom: 54,
+                                                    left: 14,
+                                                    child: TweenAnimationBuilder<double>(
+                                                      duration: const Duration(
+                                                        milliseconds: 900,
+                                                      ),
+                                                      tween: Tween(
+                                                        begin: 0.0,
+                                                        end: 1.0,
+                                                      ),
+                                                      builder: (context, value, _) {
+                                                        if (value < 0.7)
+                                                          return const SizedBox.shrink();
+
+                                                        return Transform.translate(
+                                                          offset: Offset(
+                                                            0,
+                                                            10 * (1 - value),
+                                                          ),
+                                                          child: Opacity(
+                                                            opacity: value,
+                                                            child: Container(
+                                                              padding:
+                                                                  const EdgeInsets.all(
+                                                                    10,
+                                                                  ),
+                                                              decoration: BoxDecoration(
+                                                                color:
+                                                                    const Color(
+                                                                      0xFF0F1117,
+                                                                    ),
+                                                                borderRadius:
+                                                                    BorderRadius.circular(
+                                                                      10,
+                                                                    ),
+                                                                border: Border.all(
+                                                                  color:
+                                                                      const Color(
+                                                                        0xFF00FF9C,
+                                                                      ).withOpacity(
+                                                                        0.6,
+                                                                      ),
+                                                                ),
+                                                              ),
+                                                              child: Row(
+                                                                mainAxisSize:
+                                                                    MainAxisSize
+                                                                        .min,
+                                                                children: [
+                                                                  const Icon(
+                                                                    Icons
+                                                                        .circle,
+                                                                    size: 8,
+                                                                    color: Color(
+                                                                      0xFF00FF9C,
+                                                                    ),
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    width: 8,
+                                                                  ),
+                                                                  Text(
+                                                                    "Portfolio app running",
+                                                                    style: GoogleFonts.firaCode(
+                                                                      fontSize:
+                                                                          10,
+                                                                      color: Colors
+                                                                          .white
+                                                                          .withOpacity(
+                                                                            0.85,
+                                                                          ),
+                                                                    ),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        );
+                                                      },
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ),
 
@@ -1099,7 +2104,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                       fontSize: isHoveredGlobal ? sp(5) : sp(6),
                                       color: isHoveredGlobal
                                           ? Colors.white
-                                          : const Color(0xFF00D9FF),
+                                          : Color(0xFF00D9FF),
                                       fontWeight: FontWeight.bold,
                                       shadows: [
                                         Shadow(
@@ -1128,6 +2133,232 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           // ============= PANTALLA DE CARGA (ENCIMA) =============
           if (!_loadingComplete) _buildLoadingScreen(),
         ],
+      ),
+    );
+  }
+
+  // Helper para botones animados CTA
+  Widget _buildAnimatedButton({
+    required String text,
+    required IconData icon,
+    required bool isPrimary,
+    required VoidCallback onTap,
+    required Function w,
+    required Function h,
+    required Function sp,
+  }) {
+    final ValueNotifier<bool> isHovered = ValueNotifier(false);
+
+    return MouseRegion(
+      onEnter: (_) => isHovered.value = true,
+      onExit: (_) => isHovered.value = false,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: ValueListenableBuilder<bool>(
+          valueListenable: isHovered,
+          builder: (context, hovered, child) {
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOutCubic,
+              transform: Matrix4.identity()
+                ..scale(hovered ? 1.05 : 1.0)
+                ..translate(0.0, hovered ? -3.0 : 0.0),
+              padding: EdgeInsets.symmetric(horizontal: w(15), vertical: h(9)),
+              decoration: BoxDecoration(
+                gradient: isPrimary
+                    ? LinearGradient(
+                        colors: hovered
+                            ? const [Color(0xFF00FFF0), Color(0xFF00D9FF)]
+                            : const [Color(0xFF00D9FF), Colors.lightBlue],
+                      )
+                    : null,
+                color: isPrimary ? null : Colors.transparent,
+                borderRadius: BorderRadius.circular(30),
+                border: isPrimary
+                    ? null
+                    : Border.all(
+                        color: const Color(0xFF00D9FF),
+                        width: hovered ? 2.5 : 2,
+                      ),
+                boxShadow: [
+                  if (isPrimary)
+                    BoxShadow(
+                      color: const Color(
+                        0xFF00D9FF,
+                      ).withOpacity(hovered ? 0.7 : 0.5),
+                      blurRadius: hovered ? 25 : 18,
+                      offset: Offset(0, hovered ? 8 : 6),
+                    ),
+                  if (!isPrimary && hovered)
+                    BoxShadow(
+                      color: const Color(0xFF00D9FF).withOpacity(0.3),
+                      blurRadius: 15,
+                      offset: const Offset(0, 5),
+                    ),
+                ],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AnimatedRotation(
+                    turns: hovered ? 0.05 : 0,
+                    duration: const Duration(milliseconds: 250),
+                    child: Icon(
+                      icon,
+                      size: sp(6),
+                      color: isPrimary ? Colors.white : const Color(0xFF00D9FF),
+                    ),
+                  ),
+                  SizedBox(width: w(5)),
+                  Text(
+                    text,
+                    style: GoogleFonts.poppins(
+                      color: isPrimary ? Colors.white : const Color(0xFF00D9FF),
+                      fontSize: sp(5.5),
+                      fontWeight: isPrimary ? FontWeight.bold : FontWeight.w600,
+                      letterSpacing: hovered ? 1.0 : 0.6,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatWithHover(
+    String number,
+    String label,
+    bool isHovered,
+    Function w,
+    Function sp,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ShaderMask(
+          shaderCallback: (bounds) => LinearGradient(
+            colors: isHovered
+                ? [const Color(0xFF00FFF0), const Color(0xFF00D9FF)]
+                : [const Color(0xFF00D9FF), const Color(0xFF00D9FF)],
+          ).createShader(bounds),
+          child: Text(
+            number,
+            style: GoogleFonts.poppins(
+              fontSize: sp(12),
+              fontWeight: FontWeight.w900,
+              color: Colors.white,
+              shadows: isHovered
+                  ? [
+                      Shadow(
+                        color: const Color(0xFF00D9FF).withOpacity(0.6),
+                        blurRadius: 20,
+                        offset: const Offset(0, 0),
+                      ),
+                    ]
+                  : [],
+            ),
+          ),
+        ),
+        Text(
+          label,
+          style: GoogleFonts.poppins(
+            fontSize: sp(4),
+            color: Colors.white.withOpacity(isHovered ? 0.8 : 0.6),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // Helper para botones redes
+  int _hoveredSocialIndex = -1;
+
+  Widget _buildSocialButton({
+    required IconData icon,
+    required String tooltip,
+    required VoidCallback onTap,
+    required double Function(double) w,
+    required double Function(double) sp,
+    required int index,
+  }) {
+    final bool isHovered = _hoveredSocialIndex == index;
+
+    return MouseRegion(
+      onEnter: (event) {
+        if (mounted) {
+          setState(() {
+            _hoveredSocialIndex = index;
+            isHoveredGlobal = true;
+          });
+        }
+      },
+      onExit: (event) {
+        if (mounted) {
+          setState(() {
+            _hoveredSocialIndex = -1;
+            isHoveredGlobal = false;
+          });
+        }
+      },
+      child: Tooltip(
+        message: tooltip,
+        decoration: BoxDecoration(
+          color: Colors.black.withOpacity(0.8),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: const Color(0xFF00D9FF).withOpacity(0.3),
+            width: 1,
+          ),
+        ),
+        textStyle: GoogleFonts.poppins(
+          color: Colors.white.withOpacity(0.9),
+          fontSize: sp(5),
+          fontWeight: FontWeight.w500,
+        ),
+        child: GestureDetector(
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 250),
+            curve: Curves.easeOutCubic,
+            width: w(18),
+            height: w(18),
+            transform: Matrix4.identity()
+              ..scale(isHovered ? 1.2 : 1.0)
+              ..translate(0.0, isHovered ? -1.5 : 0.0),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isHovered
+                  ? const Color(0xFF00D9FF).withOpacity(0.15)
+                  : Colors.transparent,
+              boxShadow: isHovered
+                  ? [
+                      BoxShadow(
+                        color: const Color(0xFF00D9FF).withOpacity(0.25),
+                        blurRadius: 8,
+                        spreadRadius: 1,
+                      ),
+                    ]
+                  : [],
+            ),
+            child: Center(
+              child: AnimatedRotation(
+                turns: isHovered ? 0.05 : 0,
+                duration: const Duration(milliseconds: 250),
+                child: Icon(
+                  icon,
+                  color: isHovered
+                      ? const Color(0xFF00D9FF)
+                      : Colors.white.withOpacity(0.5),
+                  size: sp(6),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -1408,7 +2639,14 @@ class UnderlineHoverText extends StatelessWidget {
 
 // ================= BLOQUE CODIGO =================
 class AnimatedCodeEditor extends StatefulWidget {
-  const AnimatedCodeEditor({super.key});
+  final VoidCallback onTypingFinished;
+  final VoidCallback onEditingStarted; // 👈 NUEVO
+
+  const AnimatedCodeEditor({
+    super.key,
+    required this.onTypingFinished,
+    required this.onEditingStarted,
+  });
 
   @override
   State<AnimatedCodeEditor> createState() => _AnimatedCodeEditorState();
@@ -1417,6 +2655,8 @@ class AnimatedCodeEditor extends StatefulWidget {
 class _AnimatedCodeEditorState extends State<AnimatedCodeEditor> {
   late List<String> _fullLines;
   late List<String> _visibleLines;
+
+  bool _isHovered = false;
 
   int _line = 0;
   int _char = 0;
@@ -1502,7 +2742,7 @@ class _AnimatedCodeEditorState extends State<AnimatedCodeEditor> {
 
     _visibleLines = List.generate(_fullLines.length, (_) => '');
 
-    _typingTimer = Timer.periodic(const Duration(milliseconds: 26), _typeStep);
+    _typingTimer = Timer.periodic(const Duration(milliseconds: 42), _typeStep);
 
     _blinkTimer = Timer.periodic(const Duration(milliseconds: 500), (_) {
       setState(() => _showCursor = !_showCursor);
@@ -1513,6 +2753,9 @@ class _AnimatedCodeEditorState extends State<AnimatedCodeEditor> {
     if (_line >= _fullLines.length) {
       timer.cancel();
       _typingFinished = true;
+
+      widget.onTypingFinished();
+
       _startEdits();
       return;
     }
@@ -1520,36 +2763,61 @@ class _AnimatedCodeEditorState extends State<AnimatedCodeEditor> {
     final current = _fullLines[_line];
 
     setState(() {
+      _cursorLine = _line;
       _char++;
       _visibleLines[_line] = current.substring(
         0,
         _char.clamp(0, current.length),
       );
-
-      if (_char >= current.length) {
-        _line++;
-        _char = 0;
-      }
     });
+
+    if (_char >= current.length) {
+      timer.cancel();
+      Future.delayed(const Duration(milliseconds: 320), () {
+        if (!mounted) return;
+        setState(() {
+          _line++;
+          _char = 0;
+        });
+        _typingTimer = Timer.periodic(
+          const Duration(milliseconds: 42),
+          _typeStep,
+        );
+      });
+    }
   }
 
   void _startEdits() {
-    _editTimer = Timer.periodic(const Duration(seconds: 3), (_) {
-      if (_editCount >= 4) {
+    _editTimer = Timer.periodic(const Duration(seconds: 10), (_) async {
+      if (_editCount >= 5) {
         _resetAndRewrite();
         return;
       }
-      _animateEdit();
+
+      // ⏸ pausa visible tipo IDE (código estable)
+      await Future.delayed(const Duration(milliseconds: 300));
+
+      await _animateEdit();
+
       _editCount++;
     });
   }
 
-  void _animateEdit() async {
+  Future<void> _animateEdit() async {
+    widget.onEditingStarted(); // 🔴 running
+
+    await Future.delayed(const Duration(milliseconds: 600));
+
     final editable = _fullLines.asMap().entries.where((e) {
       return e.value.contains('"') && !e.value.contains('Nahuel Cappa');
     }).toList();
 
-    if (editable.isEmpty) return;
+    // 🟡 NO hubo nada para editar → build OK igual
+    if (editable.isEmpty) {
+      await Future.delayed(const Duration(milliseconds: 400));
+      widget.onTypingFinished(); // ✅ build completed
+      return;
+    }
 
     final entry = editable[_random.nextInt(editable.length)];
     final lineIndex = entry.key;
@@ -1566,24 +2834,32 @@ class _AnimatedCodeEditorState extends State<AnimatedCodeEditor> {
 
     // borrar
     for (int i = end; i >= start; i--) {
-      await Future.delayed(const Duration(milliseconds: 18));
+      await Future.delayed(const Duration(milliseconds: 32));
       setState(() {
         _visibleLines[lineIndex] = oldLine.substring(0, i);
       });
     }
 
+    await Future.delayed(const Duration(milliseconds: 420));
+
     // escribir
     for (int i = 0; i < replacement.length; i++) {
-      await Future.delayed(const Duration(milliseconds: 22));
+      await Future.delayed(const Duration(milliseconds: 36));
       setState(() {
         _visibleLines[lineIndex] += replacement[i];
       });
     }
 
     _fullLines[lineIndex] = oldLine.replaceRange(start, end, replacement);
+
+    // ⏸ pausa tipo IDE
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    widget.onTypingFinished(); // 🟢 build completed
   }
 
   void _resetAndRewrite() async {
+    widget.onEditingStarted();
     _editTimer?.cancel();
     _editCount = 0;
 
@@ -1595,13 +2871,13 @@ class _AnimatedCodeEditorState extends State<AnimatedCodeEditor> {
       _typingFinished = false;
     });
 
-    _typingTimer = Timer.periodic(const Duration(milliseconds: 26), _typeStep);
+    _typingTimer = Timer.periodic(const Duration(milliseconds: 42), _typeStep);
   }
 
   Future<void> _eraseAllProgressively() async {
     for (int line = _visibleLines.length - 1; line >= 0; line--) {
       while (_visibleLines[line].isNotEmpty) {
-        await Future.delayed(const Duration(milliseconds: 14));
+        await Future.delayed(const Duration(milliseconds: 26));
         setState(() {
           _visibleLines[line] = _visibleLines[line].substring(
             0,
@@ -1610,6 +2886,17 @@ class _AnimatedCodeEditorState extends State<AnimatedCodeEditor> {
           _cursorLine = line;
         });
       }
+    }
+  }
+
+  void _markBuildCompleted() {
+    if (!_typingFinished) {
+      setState(() {
+        _typingFinished = true;
+      });
+
+      // 🔥 avisa al padre que el código está estable
+      widget.onTypingFinished();
     }
   }
 
@@ -1626,52 +2913,78 @@ class _AnimatedCodeEditorState extends State<AnimatedCodeEditor> {
     final size = MediaQuery.of(context).size;
     final fontSize = size.width * 0.011;
 
-    return Container(
-      width: size.width * 0.52,
-      padding: const EdgeInsets.all(22),
-      decoration: BoxDecoration(
-        color: const Color(0xFF0F172A),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
-        boxShadow: [
-          BoxShadow(color: Colors.cyanAccent.withOpacity(0.2), blurRadius: 45),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildHeader(),
-          const SizedBox(height: 16),
-          SizedBox(
-            height: MediaQuery.of(context).size.height * 0.40,
-            child: SingleChildScrollView(
-              physics: const NeverScrollableScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: List.generate(_visibleLines.length, (i) {
-                  final showCursor =
-                      _typingFinished && i == _cursorLine && _showCursor;
-
-                  return RichText(
-                    text: TextSpan(
-                      children: [
-                        ...highlightDart(_visibleLines[i], fontSize),
-                        if (showCursor)
-                          TextSpan(
-                            text: '|',
-                            style: GoogleFonts.firaCode(
-                              fontSize: fontSize,
-                              color: Colors.white,
-                            ),
-                          ),
-                      ],
-                    ),
-                  );
-                }),
-              ),
+    return MouseRegion(
+      onEnter: (_) => setState(() => _isHovered = true),
+      onExit: (_) => setState(() => _isHovered = false),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutCubic,
+        transform: Matrix4.identity()
+          ..scale(_isHovered ? 1.015 : 1.0)
+          ..translate(0.0, _isHovered ? -6.0 : 0.0),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(
+                0xFF00D9FF,
+              ).withOpacity(_isHovered ? 0.45 : 0.25),
+              blurRadius: _isHovered ? 35 : 20,
+              spreadRadius: _isHovered ? 2 : 0,
+              offset: const Offset(0, 12),
             ),
+          ],
+        ),
+        child: Container(
+          width: size.width * 0.52,
+          padding: const EdgeInsets.fromLTRB(22, 22, 22, 28),
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F172A),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.white.withOpacity(0.08)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.cyanAccent.withOpacity(0.2),
+                blurRadius: 45,
+              ),
+            ],
           ),
-        ],
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(),
+              const SizedBox(height: 16),
+              SizedBox(
+                height: MediaQuery.of(context).size.height * 0.55,
+                child: SingleChildScrollView(
+                  physics: const NeverScrollableScrollPhysics(),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: List.generate(_visibleLines.length, (i) {
+                      final showCursor = i == _cursorLine && _showCursor;
+
+                      return RichText(
+                        text: TextSpan(
+                          children: [
+                            ...highlightDart(_visibleLines[i], fontSize),
+                            if (showCursor)
+                              TextSpan(
+                                text: '|',
+                                style: GoogleFonts.firaCode(
+                                  fontSize: fontSize,
+                                  color: Colors.white,
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -1750,7 +3063,6 @@ List<TextSpan> highlightDart(String text, double fontSize) {
   return spans;
 }
 
-// ================= DOT =================
 class _Dot extends StatelessWidget {
   final Color color;
   const _Dot({required this.color});
@@ -1762,5 +3074,70 @@ class _Dot extends StatelessWidget {
       height: 10,
       decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
+  }
+}
+
+class _CodeScanPainter extends CustomPainter {
+  final double progress;
+
+  _CodeScanPainter({required this.progress});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    // ===== Glow ambiental (muy sutil) =====
+    final bgPaint = Paint()
+      ..shader = RadialGradient(
+        center: Alignment.topRight,
+        radius: 1.4,
+        colors: [const Color(0xFF00D9FF).withOpacity(0.10), Colors.transparent],
+      ).createShader(Offset.zero & size)
+      ..blendMode = BlendMode.plus;
+
+    canvas.drawRect(Offset.zero & size, bgPaint);
+
+    // ===== Parámetros de código =====
+    const lineHeight = 18.0;
+    final totalLines = (size.height / lineHeight).floor();
+    final activeLine = (progress * totalLines).clamp(0, totalLines - 1).toInt();
+
+    // ===== Líneas pasivas =====
+    final passivePaint = Paint()
+      ..color = Colors.white.withOpacity(0.04)
+      ..strokeWidth = 1;
+
+    // ===== Línea activa =====
+    final activePaint = Paint()
+      ..color = const Color(0xFF00FFF0).withOpacity(0.7)
+      ..strokeWidth = 2
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
+
+    for (int i = 0; i < totalLines; i++) {
+      final y = i * lineHeight + 14;
+
+      canvas.drawLine(Offset(16, y), Offset(size.width - 16, y), passivePaint);
+
+      if (i == activeLine) {
+        canvas.drawLine(Offset(16, y), Offset(size.width - 16, y), activePaint);
+      }
+    }
+
+    // ===== Cursor tipo IDE =====
+    final cursorX = lerpDouble(40, size.width - 60, progress)!;
+    final cursorY = activeLine * lineHeight + 8;
+
+    final cursorPaint = Paint()
+      ..color = Colors.white.withOpacity(0.9)
+      ..strokeWidth = 2;
+
+    canvas.drawLine(
+      Offset(cursorX, cursorY),
+      Offset(cursorX + 10, cursorY),
+      cursorPaint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant _CodeScanPainter oldDelegate) {
+    return oldDelegate.progress != progress;
   }
 }
