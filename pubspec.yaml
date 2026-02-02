@@ -12,6 +12,7 @@ dependencies:
   google_fonts: ^8.0.0
   font_awesome_flutter: ^10.7.0
   lucide_icons_flutter: ^3.1.9
+  flutter_svg: ^2.0.10
 
 dev_dependencies:
   flutter_test:
@@ -24,6 +25,15 @@ flutter:
   assets:
     - assets/img1.png
     - assets/img2.png
+    - assets/fondoCode.jpg
+    - assets/arduinoIcon.svg
+    - assets/dartIcon.svg
+    - assets/firebaseIcon.svg
+    - assets/flutterIcon.svg
+    - assets/mysqlIcon.svg
+    - assets/pythonIcon.svg
+    - assets/spanishIcon.png
+    - assets/englishIcon.png
 
   #fonts:
     #- family: PoppinsBold

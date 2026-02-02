@@ -1,9 +1,10 @@
-// ignore_for_file: deprecated_member_use, unused_import, use_key_in_widget_constructors, unused_element, no_leading_underscores_for_local_identifiers, curly_braces_in_flow_control_structures, unused_field, prefer_final_fields
+// ignore_for_file: deprecated_member_use, unused_import, use_key_in_widget_constructors, unused_element, no_leading_underscores_for_local_identifiers, curly_braces_in_flow_control_structures, unused_field, prefer_final_fields, use_super_parameters
 
 import 'dart:async';
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
@@ -13,8 +14,12 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
-  //Hovered Global
+  // ================= GLOBAL =================
   bool isHoveredGlobal = false;
+
+  // ================= LENGUAJE =================
+  bool _isHoveredLenguaje = false;
+  String lenguaje = 'es';
 
   // ================= ANIMACIÓN DE CARGA =================
   late AnimationController _loadingCodeController;
@@ -207,6 +212,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   bool _isHoveringCode = false;
   late AnimationController _codeScanController;
 
+  // ================= ANIMACIÓN MOUSE SCROLL =================
+  late AnimationController _scrollIndicatorController;
+  late Animation<double> _scrollBounceAnimation;
+  late Animation<double> _scrollFadeAnimation;
+
   @override
   void initState() {
     super.initState();
@@ -312,6 +322,26 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
       vsync: this,
       duration: const Duration(milliseconds: 700),
     );
+
+    // ================= ANIMACIÓN MOUSE SCROLL =================
+    _scrollIndicatorController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1300),
+    )..repeat(reverse: true);
+
+    _scrollBounceAnimation = Tween<double>(begin: 0, end: 10).animate(
+      CurvedAnimation(
+        parent: _scrollIndicatorController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    _scrollFadeAnimation = Tween<double>(begin: 0.4, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _scrollIndicatorController,
+        curve: Curves.easeInOut,
+      ),
+    );
   }
 
   @override
@@ -329,9 +359,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     _floatController2.dispose();
     _floatController3.dispose();
     _codeScanController.dispose();
+    _scrollIndicatorController.dispose();
     super.dispose();
   }
 
+  // ================= FONDO =================
   void _updateStars() {
     if (_random.nextDouble() < 0.02) {
       stars.add(_ShootingStar.random(_random));
@@ -345,6 +377,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     if (mounted) setState(() {});
   }
 
+  // ================= CURSOR =================
   void _updateCursorParticles() {
     for (int i = particles.length - 1; i >= 0; i--) {
       final p = particles[i];
@@ -388,6 +421,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     }
   }
 
+  // ================= BLOQUE CODIGO =================
   Color _getCodeColor(String line) {
     if (line.contains('import') ||
         line.contains('void') ||
@@ -403,6 +437,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return Colors.white.withOpacity(0.9);
   }
 
+  // ================= LOADING SCREEN =================
   Widget _buildLoadingScreen() {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
@@ -720,6 +755,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
+  // ================= APP BAR =================
   Widget _buildAppBar() {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
@@ -850,20 +886,21 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
             const Spacer(),
 
-            // Icono de sonido VER IDIOMA
+            // Selector de idioma (minimal + hint de cambio)
             MouseRegion(
-              onEnter: (event) {
+              cursor: SystemMouseCursors.none,
+              onEnter: (_) {
                 if (mounted) {
                   setState(() {
-                    _isHoveringSoundButton = true;
+                    _isHoveredLenguaje = true;
                     isHoveredGlobal = true;
                   });
                 }
               },
-              onExit: (event) {
+              onExit: (_) {
                 if (mounted) {
                   setState(() {
-                    _isHoveringSoundButton = false;
+                    _isHoveredLenguaje = false;
                     isHoveredGlobal = false;
                   });
                 }
@@ -871,38 +908,71 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               child: GestureDetector(
                 onTap: () {
                   setState(() {
-                    _isMute = !_isMute;
+                    lenguaje = lenguaje == 'es' ? 'en' : 'es';
                   });
                 },
                 child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  width: w(18),
-                  height: h(23),
+                  duration: const Duration(milliseconds: 220),
+                  curve: Curves.easeOutCubic,
+                  height: h(24),
+                  padding: EdgeInsets.symmetric(horizontal: w(6)),
                   decoration: BoxDecoration(
-                    color: _isHoveringSoundButton
-                        ? Colors.white.withOpacity(0.1)
-                        : Colors.white.withOpacity(0.05),
-                    borderRadius: BorderRadius.circular(8),
+                    color: Colors.white.withOpacity(0.035),
+                    borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: _isHoveringSoundButton
-                          ? const Color(0xFF00D9FF).withOpacity(0.5)
-                          : Colors.white.withOpacity(0.1),
-                      width: _isHoveringSoundButton ? 1.5 : 1,
+                      color: Colors.white.withOpacity(0.12),
+                      width: 1,
                     ),
-                    boxShadow: _isHoveringSoundButton
-                        ? [
-                            BoxShadow(
-                              color: const Color(0xFF00D9FF).withOpacity(0.3),
-                              blurRadius: 8,
-                              spreadRadius: 1,
-                            ),
-                          ]
-                        : null,
                   ),
-                  child: Icon(
-                    _isMute ? Icons.volume_off : Icons.volume_up,
-                    color: const Color(0xFF00D9FF),
-                    size: sp(7),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 280),
+                        transitionBuilder: (child, animation) {
+                          return FadeTransition(
+                            opacity: animation,
+                            child: ScaleTransition(
+                              scale: Tween<double>(
+                                begin: 0.9,
+                                end: 1.0,
+                              ).animate(animation),
+                              child: child,
+                            ),
+                          );
+                        },
+                        child: Image.asset(
+                          lenguaje == 'es'
+                              ? 'assets/spanishIcon.png'
+                              : 'assets/englishIcon.png',
+                          key: ValueKey(lenguaje),
+                          width: w(10),
+                          height: w(10),
+                        ),
+                      ),
+                      SizedBox(width: w(5)),
+                      AnimatedDefaultTextStyle(
+                        duration: const Duration(milliseconds: 200),
+                        style: GoogleFonts.poppins(
+                          fontSize: sp(4),
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white.withOpacity(0.85),
+                          letterSpacing: 1.1,
+                        ),
+                        child: Text(lenguaje.toUpperCase()),
+                      ),
+                      SizedBox(width: w(3)),
+                      AnimatedRotation(
+                        turns: _isHoveredLenguaje ? 0.5 : 0.0,
+                        duration: const Duration(milliseconds: 300),
+                        curve: Curves.easeOutBack,
+                        child: Icon(
+                          Icons.swap_horiz,
+                          size: sp(4.5),
+                          color: Colors.white.withOpacity(0.35),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -910,7 +980,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
             SizedBox(width: w(10)),
 
-            // Botón Contact Me
+            // Botón Contact Me (animación premium)
             MouseRegion(
               onEnter: (event) {
                 if (mounted) {
@@ -930,54 +1000,62 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               },
               child: GestureDetector(
                 onTap: () {},
-                child: AnimatedScale(
-                  scale: _isHoveringContactButton ? 1.03 : 1.0,
-                  duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeOutBack,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 250),
-                    curve: Curves.easeOutCubic,
-                    padding: EdgeInsets.symmetric(
-                      horizontal: w(10),
-                      vertical: h(7),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 320),
+                  curve: Curves.easeOutExpo,
+                  padding: EdgeInsets.symmetric(
+                    horizontal: w(10),
+                    vertical: h(7),
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: _isHoveringContactButton
+                          ? [const Color(0xFF00FFF0), const Color(0xFF00D9FF)]
+                          : [const Color(0xFF00D9FF), Colors.lightBlue],
                     ),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: _isHoveringContactButton
-                            ? [
-                                const Color(0xFF00D9FF),
-                                Colors.lightBlue,
-                                const Color(0xFF00D9FF),
-                              ]
-                            : [Colors.lightBlue, const Color(0xFF00D9FF)],
+                    borderRadius: BorderRadius.circular(30),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(
+                          0xFF00D9FF,
+                        ).withOpacity(_isHoveringContactButton ? 0.65 : 0.45),
+                        blurRadius: _isHoveringContactButton ? 35 : 20,
+                        spreadRadius: _isHoveringContactButton ? 4 : 1,
+                        offset: const Offset(0, 10),
                       ),
-                      borderRadius: BorderRadius.circular(25),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.lightBlue.withOpacity(
-                            _isHoveringContactButton ? 0.8 : 0.5,
-                          ),
-                          blurRadius: _isHoveringContactButton ? 25 : 15,
-                          spreadRadius: _isHoveringContactButton ? 3 : 0,
-                          offset: const Offset(0, 5),
+                    ],
+                  ),
+                  transform: Matrix4.identity()
+                    ..translate(0.0, _isHoveringContactButton ? -4.0 : 0.0)
+                    ..scale(_isHoveringContactButton ? 1.04 : 1.0),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      AnimatedRotation(
+                        turns: _isHoveringContactButton ? -0.05 : 0.0,
+                        duration: const Duration(milliseconds: 350),
+                        curve: Curves.easeOutBack,
+                        child: Icon(
+                          Icons.mail_outline_rounded,
+                          color: Colors.white,
+                          size: sp(6),
                         ),
-                      ],
-                    ),
-                    child: ShimmerHoverEffect(
-                      isHovered: _isHoveringContactButton,
-                      primaryColor: Colors.white,
-                      secondaryColor: const Color(0xFF00FFF0),
-                      child: AnimatedDefaultTextStyle(
+                      ),
+                      SizedBox(width: w(3)),
+                      AnimatedDefaultTextStyle(
                         duration: const Duration(milliseconds: 250),
+                        curve: Curves.easeOut,
                         style: GoogleFonts.poppins(
                           fontSize: sp(5),
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
-                          letterSpacing: _isHoveringContactButton ? 1.2 : 0,
+                          letterSpacing: _isHoveringContactButton ? 1.1 : 0.6,
                         ),
                         child: const Text('Contactame'),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),
@@ -1048,6 +1126,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                               child: Column(
                                 children: [
                                   _buildAppBar(),
+
                                   SizedBox(height: h(53)),
 
                                   Padding(
@@ -1212,7 +1291,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                                 },
                                               ),
 
-                                              SizedBox(height: h(23)),
+                                              SizedBox(height: h(33)),
 
                                               // CTA buttons con iconos
                                               Row(
@@ -1522,7 +1601,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                                 ],
                                               ),
 
-                                              SizedBox(height: h(30)),
+                                              SizedBox(height: h(33)),
 
                                               Row(
                                                 children: [
@@ -1694,7 +1773,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                                   ),
                                                 ],
                                               ),
-                                              SizedBox(height: h(30)),
+                                              SizedBox(height: h(33)),
 
                                               // Social network buttons (circular)
                                               AnimatedContainer(
@@ -1702,18 +1781,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                                   milliseconds: 300,
                                                 ),
                                                 padding: EdgeInsets.symmetric(
-                                                  horizontal: w(8),
-                                                  vertical: h(5),
+                                                  horizontal: w(5),
+                                                  vertical: h(4.5),
                                                 ),
                                                 decoration: BoxDecoration(
                                                   color: Colors.white
-                                                      .withOpacity(0.04),
+                                                      .withOpacity(0.045),
                                                   borderRadius:
-                                                      BorderRadius.circular(40),
+                                                      BorderRadius.circular(30),
                                                   border: Border.all(
                                                     color: Colors.white
-                                                        .withOpacity(0.08),
-                                                    width: 1,
+                                                        .withOpacity(0.07),
+                                                    width: 0.8,
                                                   ),
                                                 ),
                                                 child: Row(
@@ -1729,15 +1808,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                                       sp: sp,
                                                       index: 0,
                                                     ),
-                                                    SizedBox(width: w(4)),
-                                                    // Divider
-                                                    Container(
-                                                      width: 1,
-                                                      height: h(12),
-                                                      color: Colors.white
-                                                          .withOpacity(0.1),
-                                                    ),
-                                                    SizedBox(width: w(4)),
+                                                    SizedBox(width: w(3.5)),
                                                     _buildSocialButton(
                                                       icon: LucideIcons.github,
                                                       tooltip: 'GitHub',
@@ -1746,14 +1817,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                                       sp: sp,
                                                       index: 1,
                                                     ),
-                                                    SizedBox(width: w(4)),
-                                                    Container(
-                                                      width: 1,
-                                                      height: h(12),
-                                                      color: Colors.white
-                                                          .withOpacity(0.1),
-                                                    ),
-                                                    SizedBox(width: w(4)),
+                                                    SizedBox(width: w(3.5)),
                                                     _buildSocialButton(
                                                       icon: LucideIcons.globe,
                                                       tooltip: 'Portfolio',
@@ -1762,14 +1826,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                                       sp: sp,
                                                       index: 2,
                                                     ),
-                                                    SizedBox(width: w(4)),
-                                                    Container(
-                                                      width: 1,
-                                                      height: h(12),
-                                                      color: Colors.white
-                                                          .withOpacity(0.1),
-                                                    ),
-                                                    SizedBox(width: w(4)),
+                                                    SizedBox(width: w(3.5)),
                                                     _buildSocialButton(
                                                       icon: Icons.work_outline,
                                                       tooltip: 'Fiverr',
@@ -1782,7 +1839,55 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                                 ),
                                               ),
 
-                                              SizedBox(height: h(30)),
+                                              SizedBox(height: h(33)),
+
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  // Título sección tecnologías
+                                                  Padding(
+                                                    padding: EdgeInsets.only(
+                                                      bottom: h(8),
+                                                    ),
+                                                    child: Text(
+                                                      "Tecnologías con las que trabajo",
+                                                      style:
+                                                          GoogleFonts.poppins(
+                                                            fontSize: sp(5),
+                                                            fontWeight:
+                                                                FontWeight.w600,
+                                                            color: Colors.white
+                                                                .withOpacity(
+                                                                  0.75,
+                                                                ),
+                                                            letterSpacing: 0.8,
+                                                          ),
+                                                    ),
+                                                  ),
+
+                                                  // Subrayado sutil
+                                                  Container(
+                                                    width: w(40),
+                                                    height: 1.5,
+                                                    margin: EdgeInsets.only(
+                                                      bottom: h(12),
+                                                    ),
+                                                    decoration: BoxDecoration(
+                                                      gradient: LinearGradient(
+                                                        colors: [
+                                                          const Color(
+                                                            0xFF00D9FF,
+                                                          ),
+                                                          Colors.transparent,
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+
+                                                  const InfiniteTechCarousel(),
+                                                ],
+                                              ),
                                             ],
                                           ),
                                         ),
@@ -2076,6 +2181,79 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                                       ],
                                     ),
                                   ),
+
+                                  Spacer(),
+
+                                  //Animacion Scroll
+                                  Center(
+                                    child: AnimatedBuilder(
+                                      animation: _scrollIndicatorController,
+                                      builder: (context, child) {
+                                        return Transform.translate(
+                                          offset: Offset(
+                                            0,
+                                            _scrollBounceAnimation.value,
+                                          ),
+                                          child: Opacity(
+                                            opacity: _scrollFadeAnimation.value,
+                                            child: Column(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: [
+                                                ShaderMask(
+                                                  blendMode: BlendMode.srcIn,
+                                                  shaderCallback: (bounds) =>
+                                                      LinearGradient(
+                                                        begin:
+                                                            Alignment.topCenter,
+                                                        end: Alignment
+                                                            .bottomCenter,
+                                                        colors: [
+                                                          Colors.white,
+                                                          Colors.white,
+                                                          Color(0xFF00D9FF),
+                                                          Colors.lightBlue,
+                                                        ],
+                                                        stops: [
+                                                          0.0,
+                                                          0.45,
+                                                          0.55,
+                                                          1.0,
+                                                        ],
+                                                      ).createShader(bounds),
+                                                  child: Text(
+                                                    "Deslizar",
+                                                    style: GoogleFonts.poppins(
+                                                      color: const Color(
+                                                        0xFF00D9FF,
+                                                      ).withOpacity(0.7),
+                                                      fontSize: sp(5),
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      letterSpacing: 1.2,
+                                                    ),
+                                                  ),
+                                                ),
+
+                                                SizedBox(height: h(4)),
+
+                                                // Flecha hacia abajo
+                                                Icon(
+                                                  Icons
+                                                      .keyboard_arrow_down_rounded,
+                                                  color: const Color(
+                                                    0xFF00D9FF,
+                                                  ).withOpacity(0.6),
+                                                  size: sp(8),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+
+                                  SizedBox(height: h(23)),
                                 ],
                               ),
                             ),
@@ -2133,6 +2311,47 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           // ============= PANTALLA DE CARGA (ENCIMA) =============
           if (!_loadingComplete) _buildLoadingScreen(),
         ],
+      ),
+    );
+  }
+
+  // Minimalist language selector item
+  Widget _buildMinimalLanguageItem({
+    required String label,
+    required String asset,
+    required bool isActive,
+    required VoidCallback onTap,
+    required double Function(double) w,
+    required double Function(double) sp,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: EdgeInsets.symmetric(horizontal: w(6), vertical: w(3)),
+        decoration: BoxDecoration(
+          color: isActive ? Colors.white.withOpacity(0.12) : Colors.transparent,
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Row(
+          children: [
+            Opacity(
+              opacity: isActive ? 1.0 : 0.45,
+              child: SvgPicture.asset(asset, width: sp(6)),
+            ),
+            SizedBox(width: w(3)),
+            AnimatedDefaultTextStyle(
+              duration: const Duration(milliseconds: 200),
+              style: GoogleFonts.poppins(
+                fontSize: sp(4.5),
+                fontWeight: FontWeight.w600,
+                color: isActive ? Colors.white : Colors.white.withOpacity(0.5),
+                letterSpacing: 0.6,
+              ),
+              child: Text(label),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -3140,4 +3359,177 @@ class _CodeScanPainter extends CustomPainter {
   bool shouldRepaint(covariant _CodeScanPainter oldDelegate) {
     return oldDelegate.progress != progress;
   }
+}
+
+//Carrusel Lenguajes
+class InfiniteTechCarousel extends StatefulWidget {
+  const InfiniteTechCarousel({Key? key}) : super(key: key);
+
+  @override
+  State<InfiniteTechCarousel> createState() => _InfiniteTechCarouselState();
+}
+
+class _InfiniteTechCarouselState extends State<InfiniteTechCarousel> {
+  late ScrollController _scrollController;
+  late Timer _timer;
+  double _scrollPosition = 0;
+  bool _isHoveringCarousel = false;
+
+  // Lista de tecnologías con imágenes
+  final List<String> _technologies = [
+    'assets/arduinoIcon.svg',
+    'assets/dartIcon.svg',
+    'assets/firebaseIcon.svg',
+    'assets/flutterIcon.svg',
+    'assets/mysqlIcon.svg',
+    'assets/pythonIcon.svg',
+  ];
+
+  late List<String> _visibleTechs;
+
+  int? _hoveredIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController();
+    _visibleTechs = [..._technologies, ..._technologies, ..._technologies];
+
+    _timer = Timer.periodic(const Duration(milliseconds: 50), (timer) {
+      if (_isHoveringCarousel) return;
+
+      if (_scrollController.hasClients) {
+        _scrollPosition += 1.5;
+
+        final max = _scrollController.position.maxScrollExtent;
+
+        if (_scrollPosition > max - 300) {
+          setState(() {
+            _visibleTechs.addAll(_technologies);
+          });
+        }
+
+        _scrollController.jumpTo(_scrollPosition);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    double w(double width) => width / 430 * screenWidth;
+
+    return SizedBox(
+      height: w(40),
+      child: ShaderMask(
+        shaderCallback: (Rect bounds) {
+          return LinearGradient(
+            begin: Alignment.centerLeft,
+            end: Alignment.centerRight,
+            colors: [
+              Colors.transparent,
+              Colors.white,
+              Colors.white,
+              Colors.transparent,
+            ],
+            stops: const [0.0, 0.1, 0.9, 1.0],
+          ).createShader(bounds);
+        },
+        blendMode: BlendMode.modulate,
+        child: MouseRegion(
+          onEnter: (_) {
+            setState(() {
+              _isHoveringCarousel = true;
+            });
+          },
+          onExit: (_) {
+            setState(() {
+              _isHoveringCarousel = false;
+            });
+          },
+          child: ListView.builder(
+            controller: _scrollController,
+            scrollDirection: Axis.horizontal,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _visibleTechs.length,
+            itemBuilder: (context, index) {
+              final isHovered = _hoveredIndex == index;
+
+              return MouseRegion(
+                cursor: SystemMouseCursors.none,
+                onEnter: (_) {
+                  setState(() => _hoveredIndex = index);
+                },
+                onExit: (_) {
+                  setState(() => _hoveredIndex = null);
+                },
+                child: AnimatedScale(
+                  scale: isHovered ? 1.5 : 1.0,
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeOut,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: w(15)), //20
+                    child: SvgPicture.asset(
+                      _visibleTechs[index],
+                      width: w(15),
+                      height: w(15),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// Helper para selector de idioma con banderas
+Widget _buildLanguageFlag({
+  required String label,
+  required String asset,
+  required bool isActive,
+  required VoidCallback onTap,
+  required double Function(double) w,
+  required double Function(double) h,
+  required double Function(double) sp,
+}) {
+  return GestureDetector(
+    onTap: onTap,
+    child: AnimatedContainer(
+      duration: const Duration(milliseconds: 200),
+      padding: EdgeInsets.symmetric(horizontal: w(4), vertical: h(2)),
+      decoration: BoxDecoration(
+        color: isActive
+            ? const Color(0xFF00D9FF).withOpacity(0.15)
+            : Colors.transparent,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          Image.asset(asset, width: w(8), height: h(8), fit: BoxFit.cover),
+          SizedBox(width: w(2)),
+          AnimatedDefaultTextStyle(
+            duration: const Duration(milliseconds: 200),
+            style: GoogleFonts.poppins(
+              fontSize: sp(4),
+              fontWeight: FontWeight.bold,
+              color: isActive
+                  ? const Color(0xFF00D9FF)
+                  : Colors.white.withOpacity(0.7),
+            ),
+            child: Text(label),
+          ),
+        ],
+      ),
+    ),
+  );
 }
